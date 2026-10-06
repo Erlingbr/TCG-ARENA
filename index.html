@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TCG ARENA | Productos Sellados</title>
+    
+    <!-- Fuentes de Google -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS para el diseño rápido de la estructura base -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Iconos (FontAwesome) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            /* Colores base Neumorfismo */
+            --bg-color: #e0e5ec;
+            --text-main: #4a5568;
+            --text-accent: #2d3748;
+            --primary: #5a67d8;
+            
+            /* Sombras suaves */
+            --shadow-light: rgba(255, 255, 255, 0.7);
+            --shadow-dark: rgba(163, 177, 198, 0.6);
+            
+            /* Definiciones de Box Shadow Neumórficas */
+            --neu-outset: 9px 9px 16px var(--shadow-dark), -9px -9px 16px var(--shadow-light);
+            --neu-outset-sm: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+            --neu-inset: inset 6px 6px 10px 0 var(--shadow-dark), inset -6px -6px 10px 0 var(--shadow-light);
+            --neu-inset-sm: inset 3px 3px 6px 0 var(--shadow-dark), inset -3px -3px 6px 0 var(--shadow-light);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* Clases de utilidad Neumórficas */
+        .neu-card {
+            background-color: var(--bg-color);
+            box-shadow: var(--neu-outset);
+            border-radius: 1.5rem;
+        }
+
+        .neu-btn {
+            background-color: var(--bg-color);
+            color: var(--text-accent);
+            font-weight: 600;
+            box-shadow: var(--neu-outset-sm);
+            border-radius: 1rem;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .neu-btn:hover {
+            color: var(--primary);
+        }
+
+        .neu-btn:active {
+            box-shadow: var(--neu-inset-sm);
+            transform: translateY(2px);
+        }
+
+        .neu-btn-primary {
+            color: var(--primary);
+        }
+
+        .neu-img-container {
+            background-color: var(--bg-color);
+            box-shadow: var(--neu-inset);
+            border-radius: 1rem;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .neu-img-container img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            mix-blend-mode: multiply; /* Ayuda a integrar imágenes con el fondo */
+        }
+
+        /* Toast notification */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: var(--bg-color);
+            color: var(--primary);
+            text-align: center;
+            border-radius: 1rem;
+            padding: 16px;
+            position: fixed;
+            z-index: 50;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            box-shadow: var(--neu-outset);
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.3s, bottom 0.3s;
+        }
+
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+
+        .cart-badge {
+            box-shadow: var(--neu-outset-sm);
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <header class="sticky top-0 z-40 px-6 py-4">
+        <div class="max-w-7xl mx-auto neu-card px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 neu-card flex items-center justify-center text-indigo-600 font-bold text-xl">
+                    <i class="fa-solid fa-dragon"></i>
+                </div>
+                <h1 class="text-2xl font-bold tracking-wider text-gray-800">TCG ARENA</h1>
+            </div>
+            
+            <nav class="hidden md:flex gap-6 font-semibold">
+                <a href="#" class="hover:text-indigo-600 transition-colors">Inicio</a>
+                <a href="#productos" class="hover:text-indigo-600 transition-colors">Catálogo</a>
+                <a href="#" class="hover:text-indigo-600 transition-colors">Nosotros</a>
+            </nav>
+
+            <div class="flex items-center gap-4">
+                <button class="neu-btn w-12 h-12 relative" onclick="verCarrito()">
+                    <i class="fa-solid fa-cart-shopping text-lg"></i>
+                    <span id="cart-count" class="cart-badge absolute -top-2 -right-2 bg-[#e0e5ec] text-indigo-600 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border-2 border-[#e0e5ec]">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl mx-auto w-full px-6 py-8">
+        
+        <!-- Hero Section -->
+        <section class="neu-card p-8 md:p-12 mb-16 flex flex-col md:flex-row items-center gap-8">
+            <div class="flex-1 space-y-6">
+                <span class="text-indigo-500 font-semibold uppercase tracking-widest text-sm neu-card px-4 py-2 inline-block shadow-sm">Nueva Colección</span>
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-800 leading-tight">
+                    El mejor arsenal <br> para tus duelos.
+                </h2>
+                <p class="text-gray-600 text-lg">
+                    Descubre nuestra selección exclusiva de cajas de sobres, barajas de estructura y latas de Yu-Gi-Oh! TCG. Productos 100% sellados y originales.
+                </p>
+                <div class="pt-4 flex gap-4">
+                    <a href="#productos" class="neu-btn px-8 py-3 text-indigo-600 font-bold">Ver Productos</a>
+                    <button class="neu-btn px-6 py-3"><i class="fa-brands fa-instagram text-xl"></i></button>
+                </div>
+            </div>
+            <div class="flex-1 w-full max-w-md relative">
+                <!-- Imagen Hero Placeholder -->
+                <div class="neu-img-container p-4 aspect-square">
+                    <img src="https://placehold.co/600x600/e0e5ec/5a67d8?text=Yu-Gi-Oh!+Booster+Box" alt="Producto Destacado" class="rounded-xl drop-shadow-xl" style="mix-blend-mode: normal;">
+                </div>
+            </div>
+        </section>
+
+        <!-- Productos Section -->
+        <section id="productos" class="mb-16">
+            <h3 class="text-3xl font-bold text-gray-800 mb-10 text-center">Nuestros Productos Sellados</h3>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10" id="product-grid">
+                <!-- Los productos se inyectarán aquí mediante JS para mantener el código limpio, 
+                     pero pondremos el HTML directo para mostrar el diseño estático primero -->
+                
+                <!-- Producto 1 -->
+                <article class="neu-card p-6 flex flex-col">
+                    <div class="neu-img-container aspect-square mb-6">
+                        <img src="https://placehold.co/400x400/e0e5ec/5a67d8?text=Age+of+Overlord" alt="Age of Overlord Booster Box">
+                    </div>
+                    <div class="flex-grow flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-semibold text-indigo-500 mb-2 block uppercase tracking-wider">Booster Box</span>
+                            <h4 class="text-xl font-bold text-gray-800 mb-2 leading-tight">Age of Overlord</h4>
+                            <p class="text-gray-500 text-sm mb-4 line-clamp-2">Caja de 24 sobres con las cartas más buscadas del metajuego actual.</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-auto">
+                            <span class="text-2xl font-bold text-gray-800">$69.99</span>
+                            <button class="neu-btn w-12 h-12 neu-btn-primary" onclick="addToCart('Age of Overlord Booster Box', 69.99)" title="Agregar al carrito">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Producto 2 -->
+                <article class="neu-card p-6 flex flex-col">
+                    <div class="neu-img-container aspect-square mb-6">
+                        <img src="https://placehold.co/400x400/e0e5ec/e53e3e?text=Fire+Kings" alt="Structure Deck Fire Kings">
+                    </div>
+                    <div class="flex-grow flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-semibold text-red-500 mb-2 block uppercase tracking-wider">Structure Deck</span>
+                            <h4 class="text-xl font-bold text-gray-800 mb-2 leading-tight">Fire Kings</h4>
+                            <p class="text-gray-500 text-sm mb-4 line-clamp-2">Baraja preconstruida lista para jugar con estrategias destructivas de fuego.</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-auto">
+                            <span class="text-2xl font-bold text-gray-800">$11.99</span>
+                            <button class="neu-btn w-12 h-12 neu-btn-primary" onclick="addToCart('Structure Deck: Fire Kings', 11.99)" title="Agregar al carrito">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Producto 3 -->
+                <article class="neu-card p-6 flex flex-col">
+                    <div class="neu-img-container aspect-square mb-6">
+                        <img src="https://placehold.co/400x400/e0e5ec/d69e2e?text=25th+Anniv+Tin" alt="25th Anniversary Tin">
+                    </div>
+                    <div class="flex-grow flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-semibold text-yellow-600 mb-2 block uppercase tracking-wider">Collector's Tin</span>
+                            <h4 class="text-xl font-bold text-gray-800 mb-2 leading-tight">25th Anniversary: Dueling Heroes</h4>
+                            <p class="text-gray-500 text-sm mb-4 line-clamp-2">Lata de colección con sobres Mega-Packs y cartas promocionales Prismatic Secret Rares.</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-auto">
+                            <span class="text-2xl font-bold text-gray-800">$19.99</span>
+                            <button class="neu-btn w-12 h-12 neu-btn-primary" onclick="addToCart('25th Anniversary Tin', 19.99)" title="Agregar al carrito">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Producto 4 -->
+                <article class="neu-card p-6 flex flex-col">
+                    <div class="neu-img-container aspect-square mb-6">
+                        <img src="https://placehold.co/400x400/e0e5ec/805ad5?text=Phantom+Nightmare" alt="Phantom Nightmare Booster Box">
+                    </div>
+                    <div class="flex-grow flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-semibold text-purple-500 mb-2 block uppercase tracking-wider">Booster Box</span>
+                            <h4 class="text-xl font-bold text-gray-800 mb-2 leading-tight">Phantom Nightmare</h4>
+                            <p class="text-gray-500 text-sm mb-4 line-clamp-2">Descubre las nuevas estrategias de Yubel y soportes para arquetipos oscuros.</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-auto">
+                            <span class="text-2xl font-bold text-gray-800">$74.99</span>
+                            <button class="neu-btn w-12 h-12 neu-btn-primary" onclick="addToCart('Phantom Nightmare Booster Box', 74.99)" title="Agregar al carrito">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Producto 5 -->
+                <article class="neu-card p-6 flex flex-col">
+                    <div class="neu-img-container aspect-square mb-6">
+                        <img src="https://placehold.co/400x400/e0e5ec/38b2ac?text=Legendary+Collection" alt="Legendary Collection 25th">
+                    </div>
+                    <div class="flex-grow flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-semibold text-teal-500 mb-2 block uppercase tracking-wider">Special Edition</span>
+                            <h4 class="text-xl font-bold text-gray-800 mb-2 leading-tight">Legendary Collection 25th</h4>
+                            <p class="text-gray-500 text-sm mb-4 line-clamp-2">Revive la nostalgia con sobres de las primeras expansiones y cartas de Dioses Egipcios.</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-auto">
+                            <span class="text-2xl font-bold text-gray-800">$29.99</span>
+                            <button class="neu-btn w-12 h-12 neu-btn-primary" onclick="addToCart('Legendary Collection 25th', 29.99)" title="Agregar al carrito">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Producto 6 -->
+                <article class="neu-card p-6 flex flex-col">
+                    <div class="neu-img-container aspect-square mb-6">
+                        <img src="https://placehold.co/400x400/e0e5ec/48bb78?text=Traptrix" alt="Structure Deck Beware of Traptrix">
+                    </div>
+                    <div class="flex-grow flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-semibold text-green-500 mb-2 block uppercase tracking-wider">Structure Deck</span>
+                            <h4 class="text-xl font-bold text-gray-800 mb-2 leading-tight">Beware of Traptrix</h4>
+                            <p class="text-gray-500 text-sm mb-4 line-clamp-2">Controla el campo de batalla con trampas e insectos/plantas adorables pero mortales.</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-auto">
+                            <span class="text-2xl font-bold text-gray-800">$10.99</span>
+                            <button class="neu-btn w-12 h-12 neu-btn-primary" onclick="addToCart('Structure Deck: Beware of Traptrix', 10.99)" title="Agregar al carrito">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto px-6 py-10 text-center">
+        <div class="max-w-7xl mx-auto neu-card p-8 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-dragon text-indigo-500 text-2xl"></i>
+                <span class="font-bold text-xl tracking-wider text-gray-800">TCG ARENA</span>
+            </div>
+            <p class="text-sm text-gray-500">© 2026 TCG ARENA. Todos los derechos reservados. No afiliado a Konami.</p>
+            <div class="flex gap-4">
+                <button class="neu-btn w-10 h-10"><i class="fa-brands fa-facebook-f"></i></button>
+                <button class="neu-btn w-10 h-10"><i class="fa-brands fa-twitter"></i></button>
+                <button class="neu-btn w-10 h-10"><i class="fa-brands fa-instagram"></i></button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast de Notificación -->
+    <div id="toast"><i class="fa-solid fa-check-circle mr-2"></i>Producto agregado al carrito</div>
+
+    <!-- Scripts -->
+    <script>
+        // Estado del carrito
+        let carrito = [];
+        let totalItems = 0;
+
+        // Elementos del DOM
+        const cartCountElement = document.getElementById('cart-count');
+        const toastElement = document.getElementById('toast');
+
+        // Función para agregar al carrito
+        function addToCart(nombre, precio) {
+            // Animación y lógica de agregación
+            carrito.push({ nombre, precio });
+            totalItems++;
+            
+            // Actualizar UI del contador
+            cartCountElement.innerText = totalItems;
+            
+            // Mostrar notificación
+            showToast(`${nombre} agregado.`);
+            
+            // Pequeña animación en el badge del carrito
+            cartCountElement.style.transform = 'scale(1.3)';
+            setTimeout(() => {
+                cartCountElement.style.transform = 'scale(1)';
+            }, 200);
+        }
+
+        // Función para mostrar notificaciones (Toast)
+        function showToast(mensaje) {
+            toastElement.innerHTML = `<i class="fa-solid fa-check-circle mr-2"></i>${mensaje}`;
+            toastElement.className = "show";
+            
+            // Ocultar después de 3 segundos
+            setTimeout(function(){ 
+                toastElement.className = toastElement.className.replace("show", ""); 
+            }, 3000);
+        }
+
+        // Función para interactuar con el botón del carrito (Mock)
+        function verCarrito() {
+            if(totalItems === 0) {
+                showToast("Tu carrito está vacío.");
+                return;
+            }
+            
+            let totalPrecio = carrito.reduce((sum, item) => sum + item.precio, 0);
+            showToast(`Tienes ${totalItems} items. Total: $${totalPrecio.toFixed(2)}`);
+        }
+    </script>
+</body>
+</html>
